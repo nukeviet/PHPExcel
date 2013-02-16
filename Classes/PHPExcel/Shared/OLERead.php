@@ -25,7 +25,8 @@
  * @version    ##VERSION##, ##DATE##
  */
 
-define('IDENTIFIER_OLE', pack('CCCCCCCC', 0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1));
+defined('IDENTIFIER_OLE') ||
+    define('IDENTIFIER_OLE', pack('CCCCCCCC', 0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1));
 
 class PHPExcel_Shared_OLERead {
 	private $data = '';
@@ -251,19 +252,22 @@ class PHPExcel_Shared_OLERead {
 
 			$name = str_replace("\x00", "", substr($d,0,$nameSize));
 
+
 			$this->props[] = array (
 				'name' => $name,
 				'type' => $type,
 				'startBlock' => $startBlock,
 				'size' => $size);
 
+			// tmp helper to simplify checks
+			$upName = strtoupper($name);
+
 			// Workbook directory entry (BIFF5 uses Book, BIFF8 uses Workbook)
-			if (($name == 'Workbook') || ($name == 'Book') || ($name == 'WORKBOOK') || ($name == 'BOOK')) {
+			if (($upName === 'WORKBOOK') || ($upName === 'BOOK')) {
 				$this->wrkbook = count($this->props) - 1;
 			}
-
-			// Root entry
-			if ($name == 'Root Entry' || $name == 'ROOT ENTRY' || $name == 'R') {
+			else if ( $upName === 'ROOT ENTRY' || $upName === 'R') {
+				// Root entry
 				$this->rootentry = count($this->props) - 1;
 			}
 
